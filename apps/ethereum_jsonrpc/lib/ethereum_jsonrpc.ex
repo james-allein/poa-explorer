@@ -183,7 +183,7 @@ defmodule EthereumJSONRPC do
 
     case HTTPoison.post(url, json, headers, config(:http)) do
       {:ok, %HTTPoison.Response{body: body, status_code: code}} ->
-        body |> decode_json(payload, url) |> handle_response(code)
+        body |> decode_json(payload, url, code) |> handle_response(code)
 
       {:error, %HTTPoison.Error{reason: reason}} ->
         {:error, reason}
@@ -242,19 +242,24 @@ defmodule EthereumJSONRPC do
 
   defp encode_json(data), do: Jason.encode_to_iodata!(data)
 
-  defp decode_json(body, posted_payload, url) do
+  defp decode_json(body, posted_payload, url, code) do
     Jason.decode!(body)
   rescue
     Jason.DecodeError ->
       Logger.error("""
       failed to decode json payload:
 
-          url: #{inspect(url)}
+          request:
 
-          body: #{inspect(body)}
+            url: #{inspect(url)}
 
-          posted payload: #{inspect(posted_payload)}
+            posted payload: #{inspect(posted_payload)}
 
+          response:
+
+            code: #{inspect(code)}
+
+            body: #{inspect(body)}
       """)
 
       raise("bad jason")
