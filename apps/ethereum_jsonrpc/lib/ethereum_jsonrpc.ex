@@ -95,31 +95,39 @@ defmodule EthereumJSONRPC do
   Fetches address balances by address hashes.
   """
   def fetch_balances_by_hash(address_hashes) do
-    batched_requests =
-      for hash <- address_hashes do
-        %{
-          "id" => hash,
+    {batched_requests, id_to_address_hash} =
+      address_hashes
+      |> Stream.with_index()
+      |> Enum.reduce({[], %{}}, fn {address_hash, id}, {acc_requests, acc_id_to_address_hash} ->
+        request = %{
+          "id" => id,
           "jsonrpc" => "2.0",
           "method" => "eth_getBalance",
-          "params" => [hash, "latest"]
+          "params" => [address_hash, "latest"]
         }
-      end
+
+        requests = [request | acc_requests]
+        id_to_address_hash = Map.put(acc_id_to_address_hash, id, address_hash)
+
+        {requests, id_to_address_hash}
+      end)
 
     batched_requests
     |> json_rpc(config(:url))
-    |> handle_balances()
+    |> handle_balances(id_to_address_hash)
   end
 
-  defp handle_balances({:ok, results}) do
+  defp handle_balances({:ok, results}, id_to_address_hash) do
     native_results =
       for response <- results, into: %{} do
-        {response["id"], hexadecimal_to_integer(response["result"])}
+        address_hash = Map.fetch!(id_to_address_hash, response["id"])
+        {address_hash, hexadecimal_to_integer(response["result"])}
       end
 
     {:ok, native_results}
   end
 
-  defp handle_balances({:error, _reason} = err), do: err
+  defp handle_balances({:error, _reason} = err, _), do: err
 
   @doc """
   Fetches blocks by block hashes.
