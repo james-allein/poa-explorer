@@ -162,10 +162,6 @@ defmodule Explorer.Factory do
     }
   end
 
-  def public_key do
-    data(:public_key)
-  end
-
   def market_history_factory do
     %MarketHistory{
       closing_price: price(),
@@ -203,10 +199,8 @@ defmodule Explorer.Factory do
       hash: transaction_hash(),
       input: transaction_input(),
       nonce: Enum.random(1..1_000),
-      public_key: public_key(),
       r: sequence(:transaction_r, & &1),
       s: sequence(:transaction_s, & &1),
-      standard_v: Enum.random(0..3),
       to_address_hash: insert(:address).hash,
       v: Enum.random(27..30),
       value: Enum.random(1..100_000)
