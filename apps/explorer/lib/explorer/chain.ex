@@ -1700,7 +1700,8 @@ defmodule Explorer.Chain do
     )
   end
 
-  @spec insert_addresses([%{hash: Hash.Truncated.t()}], [timeout_option | timestamps_option]) :: {:ok, [Hash.Truncated.t()]}
+  @spec insert_addresses([%{hash: Hash.Truncated.t()}], [timeout_option | timestamps_option]) ::
+          {:ok, [Hash.Truncated.t()]}
   defp insert_addresses(changes_list, named_arguments)
        when is_list(changes_list) and is_list(named_arguments) do
     timestamps = Keyword.fetch!(named_arguments, :timestamps)

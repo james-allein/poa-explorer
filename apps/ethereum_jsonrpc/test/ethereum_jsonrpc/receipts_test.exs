@@ -37,7 +37,10 @@ defmodule EthereumJSONRPC.ReceiptsTest do
                     transaction_index: 0
                   }
                 ]
-              }} = Receipts.fetch(["0x53bd884872de3e488692881baeec262e7b95234d3965248c39fe992fffd433e5"])
+              }} =
+               Receipts.fetch([
+                 %{gas: 50451, hash: "0x53bd884872de3e488692881baeec262e7b95234d3965248c39fe992fffd433e5"}
+               ])
     end
   end
 end

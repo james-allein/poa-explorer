@@ -3,9 +3,11 @@ defmodule EthereumJSONRPC.Parity do
   Ethereum JSONRPC methods that are only supported by [Parity](https://wiki.parity.io/).
   """
 
-  import EthereumJSONRPC, only: [config: 1, json_rpc: 2]
+  import EthereumJSONRPC, only: [json_rpc: 2]
 
   alias EthereumJSONRPC.Parity.Traces
+
+  @behaviour EthereumJSONRPC.Variant
 
   @doc """
   Fetches the `t:Explorer.Chain.InternalTransaction.changeset/2` params from the Parity trace URL.
@@ -44,6 +46,12 @@ defmodule EthereumJSONRPC.Parity do
 
       {:ok, internal_transactions_params}
     end
+  end
+
+  defp config(key) do
+    __MODULE__
+    |> EthereumJSONRPC.config()
+    |> Keyword.fetch!(key)
   end
 
   defp response_to_trace(%{"id" => transaction_hash, "result" => %{"trace" => traces}}) when is_list(traces) do
