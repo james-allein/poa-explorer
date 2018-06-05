@@ -5,6 +5,7 @@ defmodule Explorer.ChainTest do
 
   alias Explorer.{Chain, Repo, Factory}
   alias Explorer.Chain.{Address, Block, InternalTransaction, Log, Transaction, Wei}
+  alias Explorer.Chain.Supply.ProofOfAuthority
 
   doctest Explorer.Chain
 
@@ -860,5 +861,17 @@ defmodule Explorer.ChainTest do
     test "with block without transactions", %{block: block, block_reward: block_reward} do
       assert block_reward.reward == Chain.block_reward(block)
     end
+  end
+
+  test "total_supply/0" do
+    height = 2_000_000
+    insert(:block, number: height)
+    expected = ProofOfAuthority.initial_supply() + height
+
+    assert Chain.total_supply() == expected
+  end
+
+  test "circulating_supply/0" do
+    assert Chain.circulating_supply() == ProofOfAuthority.circulating()
   end
 end
