@@ -54,7 +54,7 @@ defmodule ExplorerWeb.AddressContractVerificationTest do
     |> fill_in(text_field("Enter the Solidity Contract Code below"), with: code)
     |> click(button("Verify and publish"))
 
-    assert current_path(session) =~ ~r/\/en\/addresses\/#{address_hash}\/contracts/
+    assert current_path(session) =~ ~r/\/en\/addresses\/#{address_hash}\/contract_verifications/
   end
 
   test "with invalid data shows error messages", %{session: session, bypass: bypass} do
