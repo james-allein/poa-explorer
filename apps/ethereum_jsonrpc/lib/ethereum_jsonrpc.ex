@@ -75,17 +75,25 @@ defmodule EthereumJSONRPC do
   @doc """
   Fetches configuration for this module under `key`
 
-  Configuration can be set a compile time using `config`
+  Configuration can be set at compile time using `config`
 
       config :ethereume_jsonrpc, key, value
 
-  Configuration can be set a runtime using `Application.put_env/3`
+  Configuration can be set at runtime using `Application.put_env/3`
 
       Application.put_env(:ethereume_jsonrpc, key, value)
 
   """
   def config(key) do
     Application.fetch_env!(:ethereum_jsonrpc, key)
+  end
+
+  def execute_contract_function(address_hash, data) do
+    params = [%{to: address_hash, data: data}]
+
+    %{id: address_hash, method: "eth_call", params: params}
+    |> request()
+    |> json_rpc(config(:url))
   end
 
   @doc """
