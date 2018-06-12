@@ -39,6 +39,7 @@
   "jason": {:hex, :jason, "1.0.0", "0f7cfa9bdb23fed721ec05419bcee2b2c21a77e926bce0deda029b5adc716fe2", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
   "jsx": {:hex, :jsx, "2.8.3", "a05252d381885240744d955fbe3cf810504eb2567164824e19303ea59eef62cf", [:mix, :rebar3], [], "hexpm"},
   "junit_formatter": {:hex, :junit_formatter, "2.1.0", "ff03d2bbe9a67041f2488d8e72180ddcf4dff9e9c8a39b79eac9828fcb9e9bbf", [:mix], [], "hexpm"},
+  "keccakf1600": {:hex, :keccakf1600_orig, "2.0.0", "0a7217ddb3ee8220d449bbf7575ec39d4e967099f220a91e3dfca4dbaef91963", [:rebar3], [], "hexpm"},
   "math": {:hex, :math, "0.3.0", "e14e7291115201cb155a3567e66d196bf5088a6f55b030d598107d7ae934a11c", [:mix], [], "hexpm"},
   "meck": {:hex, :meck, "0.8.9", "64c5c0bd8bcca3a180b44196265c8ed7594e16bcc845d0698ec6b4e577f48188", [:rebar3], [], "hexpm"},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm"},

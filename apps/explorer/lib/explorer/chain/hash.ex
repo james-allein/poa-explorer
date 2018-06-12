@@ -184,6 +184,21 @@ defmodule Explorer.Chain.Hash do
     |> IO.iodata_to_binary()
   end
 
+  @doc """
+  Helper function to encrypt a binary (usually a string) ussing the keccak256 algortihm.
+  """
+  def binary_to_keccak(binary, bytes_number \\ 4) do
+    binary
+    |> :keccakf1600.sha3_256()
+    |> first_bytes(bytes_number)
+    |> Base.encode16(case: :lower)
+  end
+
+  defp first_bytes(hash, bytes_number) do
+    <<first_bytes::binary-size(bytes_number)>> <> _remaining_bytes = hash
+    first_bytes
+  end
+
   defp byte_count_to_hexadecimal_digit_count(byte_count) do
     byte_count * @hexadecimal_digits_per_byte
   end

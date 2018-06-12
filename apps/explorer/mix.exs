@@ -87,7 +87,9 @@ defmodule Explorer.Mixfile do
       {:scrivener_html, "~> 1.7"},
       {:sobelow, ">= 0.7.0", only: [:dev, :test], runtime: false},
       {:timex, "~> 3.1.24"},
-      {:timex_ecto, "~> 3.2.1"}
+      {:timex_ecto, "~> 3.2.1"},
+      # Encode function names to EVM's Keccakf 256
+      {:keccakf1600, "~> 2.0", hex: :keccakf1600_orig}
     ]
   end
 
