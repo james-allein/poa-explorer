@@ -4,7 +4,7 @@ defmodule Explorer.Indexer.BlockFetcherTest do
 
   import ExUnit.CaptureLog
 
-  alias Explorer.Chain.{Address, Block, Log, Transaction}
+  alias Explorer.Chain.{Address, Block, Hash, InternalTransaction, Log, Transaction}
   alias Explorer.Indexer
 
   alias Explorer.Indexer.{
@@ -214,6 +214,60 @@ defmodule Explorer.Indexer.BlockFetcherTest do
       assert Repo.aggregate(Address, :count, :hash) == 2
       assert Repo.aggregate(Log, :count, :id) == 1
       assert Repo.aggregate(Transaction, :count, :hash) == 1
+    end
+
+    test "can import `call_type` `create` internal transactions", %{state: state} do
+      {:ok, sequence} = Sequence.start_link([], 0, 1)
+      block_number = 2870099
+
+      assert {:ok,
+               %{
+                 addresses: [
+                   %Explorer.Chain.Hash{
+                     byte_count: 20,
+                     bytes: <<55, 82, 240, 165, 33, 178, 227, 131, 105, 63, 101,
+                       141, 111, 195, 119, 149, 48, 36, 194, 7>>
+                   },
+                   %Explorer.Chain.Hash{
+                     byte_count: 20,
+                     bytes: <<160, 176, 212, 204, 244, 131, 176, 0, 240, 175, 89,
+                       196, 122, 25, 68, 102, 132, 119, 185, 65>>
+                   }
+                 ],
+                 blocks: [
+                   %Explorer.Chain.Hash{
+                     byte_count: 32,
+                     bytes: <<115, 101, 178, 91, 36, 120, 185, 193, 76, 155, 12,
+                       166, 110, 7, 162, 206, 118, 128, 146, 242, 99, 197, 63, 43,
+                       31, 239, 124, 92, 106, 217, 227, 236>>
+                   }
+                 ],
+                 logs: [],
+                 transactions: [
+                   %Explorer.Chain.Hash{
+                     byte_count: 32,
+                     bytes: <<220, 233, 56, 150, 137, 221, 195, 160, 253, 201, 52,
+                       242, 66, 31, 219, 120, 159, 168, 126, 215, 1, 160, 105,
+                       252, 52, 74, 105, 114, 243, 165, 82, 234>>
+                   } = transaction_hash
+                 ]
+               }} = BlockFetcher.import_range(block_number..block_number, state, sequence)
+
+      assert {:ok, ^transaction_hash} = Hash.Full.cast("0xdce9389689ddc3a0fdc934f2421fdb789fa87ed701a069fc344a6972f3a552ea")
+
+      wait_for_tasks(InternalTransactionFetcher)
+      wait_for_tasks(AddressBalanceFetcher)
+
+      assert Repo.aggregate(Block, :count, :hash) == 1
+      assert Repo.aggregate(Address, :count, :hash) == 3
+      assert Repo.aggregate(Log, :count, :id) == 0
+      assert Repo.aggregate(Transaction, :count, :hash) == 1
+      assert Repo.aggregate(InternalTransaction, :count, :id) == 1
+
+      internal_transaction = Repo.one!(InternalTransaction)
+
+      assert internal_transaction.type == :create
+      assert internal_transaction.call_type == nil
     end
   end
 
