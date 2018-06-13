@@ -8,6 +8,7 @@ defmodule Explorer.SmartContract.Solidity.CodeCompilerTest do
   describe "run/2" do
     test "compiles a smart contract using the solidity command line" do
       name = "SimpleStorage"
+      compiler_version = "v0.4.24+commit.e67f0147"
       optimization = false
 
       code = """
@@ -26,7 +27,7 @@ defmodule Explorer.SmartContract.Solidity.CodeCompilerTest do
       }
       """
 
-      response = CodeCompiler.run(name, code, optimization)
+      response = CodeCompiler.run(name, compiler_version, code, optimization)
 
       assert {:ok,
               %{

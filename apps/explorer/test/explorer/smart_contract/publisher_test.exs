@@ -27,7 +27,7 @@ defmodule Explorer.SmartContract.PublisherTest do
       valid_attrs = %{
         "contract_source_code" =>
           "pragma solidity ^0.4.23;\r\n\r\ncontract SimpleStorage {\r\n    uint storedData;\r\n\r\n    function set(uint x) public {\r\n        storedData = x;\r\n    }\r\n\r\n    function get() public constant returns (uint) {\r\n        return storedData;\r\n    }\r\n}",
-        "compiler" => "0.4.24",
+        "compiler" => "v0.4.24+commit.e67f0147",
         "name" => "SimpleStorage",
         "optimization" => false
       }

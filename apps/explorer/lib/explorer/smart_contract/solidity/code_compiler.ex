@@ -9,7 +9,7 @@ defmodule Explorer.SmartContract.Solidity.CodeCompiler do
   Returns a `Map`.
 
   ## Examples
-      iex(1)> Explorer.SmartContract.Solidity.CodeCompiler.run("SimpleStorage", "pragma solidity ^0.4.23; contract SimpleStorage {uint storedData; function set(uint x) public {storedData = x; } function get() public constant returns (uint) {return storedData; } }", false)
+      iex(1)> Explorer.SmartContract.Solidity.CodeCompiler.run("SimpleStorage", "v0.4.23+commit.124ca40d", "pragma solidity ^0.4.23; contract SimpleStorage {uint storedData; function set(uint x) public {storedData = x; } function get() public constant returns (uint) {return storedData; } }", false)
       {:ok, %{
           "abi" => [
             %{
@@ -31,18 +31,18 @@ defmodule Explorer.SmartContract.Solidity.CodeCompiler do
               "type" => "function"
             }
           ],
-        "bytecode" => "608060405234801561001057600080fd5b5060df8061001f6000396000f3006080604052600436106049576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806360fe47b114604e5780636d4ce63c146078575b600080fd5b348015605957600080fd5b5060766004803603810190808035906020019092919050505060a0565b005b348015608357600080fd5b50608a60aa565b6040518082815260200191505060405180910390f35b8060008190555050565b600080549050905600a165627a7a72305820017172d01c000255d5c74c0efce764adf7c4ae444d7f7e2ed852f6fb9b73df5d0029",
+        "bytecode" => "608060405234801561001057600080fd5b5060df8061001f6000396000f3006080604052600436106049576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806360fe47b114604e5780636d4ce63c146078575b600080fd5b348015605957600080fd5b5060766004803603810190808035906020019092919050505060a0565b005b348015608357600080fd5b50608a60aa565b6040518082815260200191505060405180910390f35b8060008190555050565b600080549050905600a165627a7a7230582034dc7149794530e246d2c1bba8bfaf0ccf5d7ee9bb359cd1cdd7b65d1b23bdf90029",
         "name" => "SimpleStorage"
       }}
   """
-  def run(name, code, optimization) do
+  def run(name, compiler_version, code, optimization) do
     {response, _status} =
       System.cmd(
         "node",
         [
           Application.app_dir(:explorer, "priv/compile_solc.js"),
           generate_settings(name, code, optimization),
-          "v0.4.24+commit.e67f0147"
+          compiler_version
         ]
       )
 
