@@ -27,7 +27,7 @@ defmodule Explorer.SmartContract.PublisherTest do
       valid_attrs = %{
         "contract_source_code" =>
           "pragma solidity ^0.4.23;\r\n\r\ncontract SimpleStorage {\r\n    uint storedData;\r\n\r\n    function set(uint x) public {\r\n        storedData = x;\r\n    }\r\n\r\n    function get() public constant returns (uint) {\r\n        return storedData;\r\n    }\r\n}",
-        "compiler" => "v0.4.24+commit.e67f0147",
+        "compiler_version" => "v0.4.24+commit.e67f0147",
         "name" => "SimpleStorage",
         "optimization" => false
       }
@@ -35,7 +35,7 @@ defmodule Explorer.SmartContract.PublisherTest do
       assert {:ok, %SmartContract{} = smart_contract} = Publisher.publish(address_hash, valid_attrs)
       assert smart_contract.name == valid_attrs["name"]
       assert Hash.to_string(smart_contract.address_hash) == address_hash
-      assert smart_contract.compiler_version == valid_attrs["compiler"]
+      assert smart_contract.compiler_version == valid_attrs["compiler_version"]
       assert smart_contract.optimization == valid_attrs["optimization"]
       assert smart_contract.contract_source_code == valid_attrs["contract_source_code"]
       assert smart_contract.abi != nil
@@ -46,7 +46,7 @@ defmodule Explorer.SmartContract.PublisherTest do
 
       invalid_attrs = %{
         "contract_source_code" => "",
-        "compiler" => "",
+        "compiler_version" => "",
         "name" => "",
         "optimization" => ""
       }

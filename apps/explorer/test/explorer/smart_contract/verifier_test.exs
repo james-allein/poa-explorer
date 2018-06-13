@@ -25,7 +25,7 @@ defmodule Explorer.SmartContract.VerifierTest do
       params = %{
         "contract_source_code" =>
           "pragma solidity ^0.4.24; contract SimpleStorage { uint storedData; function set(uint x) public { storedData = x; } function get() public constant returns (uint) { return storedData; } }",
-        "compiler" => "v0.4.24+commit.e67f0147",
+        "compiler_version" => "v0.4.24+commit.e67f0147",
         "name" => "SimpleStorage",
         "optimization" => false
       }
@@ -52,7 +52,7 @@ defmodule Explorer.SmartContract.VerifierTest do
       params = %{
         "contract_source_code" =>
           "pragma solidity ^0.4.24; contract SimpleStorage { uint storedData; function set(uint x) public { storedData = x; } function get() public constant returns (uint) { return storedData; } }",
-        "compiler" => "v0.4.24+commit.e67f0147",
+        "compiler_version" => "v0.4.24+commit.e67f0147",
         "name" => "SimpleStorage",
         "optimization" => false
       }
@@ -65,7 +65,7 @@ defmodule Explorer.SmartContract.VerifierTest do
 
       params = %{
         "contract_source_code" => "pragma solidity ^0.4.24; contract SimpleStorage { ",
-        "compiler" => "v0.4.24+commit.e67f0147",
+        "compiler_version" => "v0.4.24+commit.e67f0147",
         "name" => "SimpleStorage",
         "optimization" => false
       }
