@@ -3,43 +3,147 @@ defmodule Explorer.Indexer.AddressExtractionTest do
 
   alias Explorer.Indexer.AddressExtraction
 
+  doctest AddressExtraction
+
   describe "extract_addresses/1" do
-    test "returns all hashes entities data in a list" do
-      block = %{miner_hash: gen_hash()}
+    test "blocks must have `miner_hash` or it is an ArgumentError" do
+      assert_raise ArgumentError,
+                   """
+                   No extract format matches params.
 
-      internal_transaction = %{
-        from_address_hash: gen_hash(),
-        to_address_hash: gen_hash(),
-        created_contract_address_hash: gen_hash(),
-        created_contract_code: "code"
-      }
+                   Extract Format(s):
+                   1. [%{from: :number, to: :fetched_balance_block_number}, %{from: :miner_hash, to: :hash}]}
 
-      transaction = %{
-        from_address_hash: gen_hash(),
-        to_address_hash: gen_hash()
-      }
+                   Params:
+                   %{number: 34}
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       blocks: [
+                         %{
+                           number: 34
+                         }
+                       ]
+                     })
+                   end
+    end
 
-      log = %{address_hash: gen_hash()}
+    test "blocks must have `number` or it is an ArgumentError" do
+      assert_raise ArgumentError,
+                   """
+                   No extract format matches params.
 
-      blockchain_data = %{
-        blocks: [block],
-        internal_transactions: [internal_transaction],
-        transactions: [transaction],
-        logs: [log]
-      }
+                   Extract Format(s):
+                   1. [%{from: :number, to: :fetched_balance_block_number}, %{from: :miner_hash, to: :hash}]}
 
-      assert AddressExtraction.extract_addresses(blockchain_data) == [
-               %{hash: block.miner_hash},
-               %{hash: internal_transaction.from_address_hash},
-               %{hash: internal_transaction.to_address_hash},
-               %{
-                 hash: internal_transaction.created_contract_address_hash,
-                 contract_code: internal_transaction.created_contract_code
-               },
-               %{hash: transaction.from_address_hash},
-               %{hash: transaction.to_address_hash},
-               %{hash: log.address_hash}
-             ]
+                   Params:
+                   %{miner_hash: "0xe8ddc5c7a2d2f0d7a9798459c0104fdf5e987aca"}
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       blocks: [
+                         %{
+                           miner_hash: "0xe8ddc5c7a2d2f0d7a9798459c0104fdf5e987aca"
+                         }
+                       ]
+                     })
+                   end
+    end
+
+    test "internal_transactions must have `block_number` or it is an ArgumentError" do
+      assert_raise ArgumentError,
+                   """
+                   No extract format matches params.
+
+                   Extract Format(s):
+                   1. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :from_address_hash, to: :hash}]}
+                   2. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :to_address_hash, to: :hash}]}
+                   3. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :created_contract_address_hash, to: :hash}, %{from: :created_contract_code, to: :contract_code}]}
+
+                   Params:
+                   %{from_address_hash: "0x0000000000000000000000000000000000000001"}
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       internal_transactions: [
+                         %{
+                           from_address_hash: "0x0000000000000000000000000000000000000001"
+                         }
+                       ]
+                     })
+                   end
+
+      assert_raise ArgumentError,
+                   """
+                   No extract format matches params.
+
+                   Extract Format(s):
+                   1. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :from_address_hash, to: :hash}]}
+                   2. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :to_address_hash, to: :hash}]}
+                   3. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :created_contract_address_hash, to: :hash}, %{from: :created_contract_code, to: :contract_code}]}
+
+                   Params:
+                   %{to_address_hash: "0x0000000000000000000000000000000000000002"}
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       internal_transactions: [
+                         %{
+                           to_address_hash: "0x0000000000000000000000000000000000000002"
+                         }
+                       ]
+                     })
+                   end
+
+      assert_raise ArgumentError,
+                   """
+                   No extract format matches params.
+
+                   Extract Format(s):
+                   1. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :from_address_hash, to: :hash}]}
+                   2. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :to_address_hash, to: :hash}]}
+                   3. [%{from: :block_number, to: :fetched_balance_block_number}, %{from: :created_contract_address_hash, to: :hash}, %{from: :created_contract_code, to: :contract_code}]}
+
+                   Params:
+                   %{created_contract_address_hash: "0x0000000000000000000000000000000000000003", created_contract_code: "0x"}
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       internal_transactions: [
+                         %{
+                           created_contract_address_hash: "0x0000000000000000000000000000000000000003",
+                           created_contract_code: "0x"
+                         }
+                       ]
+                     })
+                   end
+    end
+
+    test "differing contract code causes an ArgumentError" do
+      assert_raise ArgumentError,
+                   """
+                   contract_code differs:
+
+                   0x1
+
+                   0x2
+                   """,
+                   fn ->
+                     Explorer.Indexer.AddressExtraction.extract_addresses(%{
+                       internal_transactions: [
+                         %{
+                           block_number: 1,
+                           created_contract_code: "0x1",
+                           created_contract_address_hash: "0x0000000000000000000000000000000000000001"
+                         },
+                         %{
+                           block_number: 2,
+                           created_contract_code: "0x2",
+                           created_contract_address_hash: "0x0000000000000000000000000000000000000001"
+                         }
+                       ]
+                     })
+                   end
     end
 
     test "returns empty list with empty data" do
@@ -55,35 +159,12 @@ defmodule Explorer.Indexer.AddressExtractionTest do
       assert Enum.empty?(addresses)
     end
 
-    test "addresses get merged when they're duplicated by their hash" do
-      hash = "0xe8ddc5c7a2d2f0d7a9798459c0104fdf5e987aca"
-
-      blockchain_data = %{
-        blocks: [%{miner_hash: hash}],
-        transactions: [%{from_address_hash: hash}],
-        internal_transactions: [
-          %{
-            created_contract_address_hash: hash,
-            created_contract_code: "code"
-          }
-        ]
-      }
-
-      assert AddressExtraction.extract_addresses(blockchain_data) ==
-               [
-                 %{hash: hash, contract_code: "code"}
-               ]
-    end
-
-    test "only entities data defined in @entity_to_address_map are collected" do
-      blockchain_data = %{
-        blocks: [%{miner_hash: "0xe8ddc5c7a2d2f0d7a9798459c0104fdf5e987aca"}],
-        unkown_entity: [%{hash: "0x8bf38d4764929064f2d4d3a56520a76ab3df415b"}]
-      }
-
-      assert AddressExtraction.extract_addresses(blockchain_data) == [
-               %{hash: "0xe8ddc5c7a2d2f0d7a9798459c0104fdf5e987aca"}
-             ]
+    test "entities not defined in @entity_to_extract_format_list cause an error" do
+      assert_raise KeyError, fn ->
+        AddressExtraction.extract_addresses(%{
+          unkown_entity: [%{hash: "0x8bf38d4764929064f2d4d3a56520a76ab3df415b"}]
+        })
+      end
     end
 
     test "returns an empty list when there isn't a recognized entity" do
@@ -91,80 +172,5 @@ defmodule Explorer.Indexer.AddressExtractionTest do
 
       assert Enum.empty?(addresses)
     end
-  end
-
-  describe "extract_addresses_from_collection/2" do
-    test "returns all matched addresses" do
-      fields_map = [
-        %{from: :field_1, to: :hash},
-        %{from: :field_2, to: :hash}
-      ]
-
-      items = [
-        %{field_1: "hash1", field_2: "hash2"},
-        %{field_1: "hash1", field_2: "hash3"}
-      ]
-
-      assert AddressExtraction.extract_addresses_from_collection(items, fields_map) == [
-               %{hash: "hash1"},
-               %{hash: "hash2"},
-               %{hash: "hash1"},
-               %{hash: "hash3"}
-             ]
-    end
-  end
-
-  describe "extract_addresses_from_item/2" do
-    test "only fields specified in the fields map are fetched" do
-      fields_map = [
-        %{from: :field_1, to: :hash}
-      ]
-
-      item = %{field_1: "hash1", field_2: "hash2"}
-
-      response = AddressExtraction.extract_addresses_from_item(item, fields_map)
-
-      assert response == [%{hash: "hash1"}]
-    end
-
-    test "attributes of the same item defined separately in the fields map fetches different addresses" do
-      fields_map = [
-        %{from: :field_1, to: :hash},
-        %{from: :field_2, to: :hash}
-      ]
-
-      item = %{field_1: "hash1", field_2: "hash2"}
-
-      response = AddressExtraction.extract_addresses_from_item(item, fields_map)
-
-      assert response == [%{hash: "hash1"}, %{hash: "hash2"}]
-    end
-
-    test "a list of attributes in the fields map references the same address" do
-      fields_map = [
-        %{from: :field_1, to: :hash},
-        [
-          %{from: :field_2, to: :hash},
-          %{from: :field_2_code, to: :code}
-        ]
-      ]
-
-      data = %{field_1: "hash1", field_2: "hash2", field_2_code: "code"}
-
-      response =
-        AddressExtraction.extract_addresses_from_item(
-          data,
-          fields_map
-        )
-
-      assert response == [
-               %{hash: "hash1"},
-               %{code: "code", hash: "hash2"}
-             ]
-    end
-  end
-
-  defp gen_hash() do
-    Explorer.Chain.Hash.to_string(Explorer.Factory.address_hash())
   end
 end
